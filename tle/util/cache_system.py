@@ -7,6 +7,7 @@ import time
 
 from tle.util import codeforces_api as cf
 from tle.util import handle_conn
+from tle.util.casedict import CaseInsensitiveDict
 
 logger = logging.getLogger(__name__)
 
@@ -21,13 +22,8 @@ def suppress(*exceptions):
 
 
 class CacheSystem:
-    # """
-    #     Explanation: a pair of 'problems' returned from cf api may
-    #     be the same (div 1 vs div 2). we pick one of them and call
-    #     it 'base_problem' which will be used below:
-    # """
     """
-        ^ for now, we won't pick problems with the same name the user has solved
+        for now, we won't pick problems with the same name the user has solved
         there isn't a good way to do this with the current API
     """
 
@@ -40,17 +36,14 @@ class CacheSystem:
         self.problem_start = None   # id => start_time
         self.user_rating = None # dict: handle => rating
         self.user_rating_last_cache = None
-        # self.problems = None
-        # self.base_problems = None
-        # this dict looks up a problem identifier and returns that of the base problem
-        # self.problem_to_base = None
         self.logger = logging.getLogger(self.__class__.__name__)
 
     async def get_user_rating(self, duration: int):
         now = time.time()
         if self.user_rating is None or self.user_rating_last_cache is None or now - self.user_rating_last_cache > duration:
-            users = await cf.user.ratedList()            
-            self.user_rating = {u.handle : u.rating for u in users}
+            users = await cf.user.ratedList()
+            self.user_rating = CaseInsensitiveDict([(u.handle, u.rating) for u in users])
+            # self.user_rating = {u.handle : u.rating for u in users}
             self.user_rating_last_cache = now
         return self.user_rating
 
