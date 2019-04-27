@@ -1,5 +1,10 @@
 from collections import abc
 
+"""
+    Case Insensitive Dict
+    Case is preserved in the storage, but insensitive for lookups.
+"""
+
 # Adapted from https://github.com/kennethreitz/requests/blob/v1.2.3/requests/structures.py#L37
 
 # Original Author's License:
