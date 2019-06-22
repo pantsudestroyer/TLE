@@ -265,6 +265,13 @@ class Handles(commands.Cog):
             rank2role[rank.title.lower()] = await converter.convert(ctx, rank.title)
         return rank2role
 
+    async def get_purgatory(self, ctx):
+        converter = commands.RoleConverter()
+        await converter.convert(ctx, 'Purgatory')
+
+    async def is_purgatory(self, ctx, role):
+        return role in ['Specialist', 'Pupil', 'Newbie']
+
     @commands.command(brief='update roles (admin-only)')
     @commands.has_role('Admin')
     async def _updateroles(self, ctx):
@@ -300,17 +307,24 @@ class Handles(commands.Cog):
                     member = await converter.convert(ctx, user_id)
                     rank = user.rank.title.lower()
                     rm_list = []
-                    add = True
+                    add_list = []
+                    has_purg = False
                     for role in member.roles:
                         name = role.name.lower()
                         if name == rank:
-                            add = False
+                            add_list.append(rank2role[rank])
                         elif name in rank2role:
                             rm_list.append(role)
+                        elif name == 'Purgatory':
+                            has_purg = True
+                            if not self.is_purgatory(rank):
+                                rm_list.append(role)
+                    if not has_purg and self.is_purgatory(rank):
+                        add_list.append(self.get_purgatory())
                     if rm_list:
                         await member.remove_roles(*rm_list)
                     if add:
-                        await member.add_roles(rank2role[rank])
+                        await member.add_roles(*add_list)
                 except Exception as e:
                     print(e)
             msg = 'Update roles completed.'
