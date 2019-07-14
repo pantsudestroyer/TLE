@@ -161,10 +161,15 @@ class Codeforces(commands.Cog):
         else:
             await ctx.send('You have already claimed your points')
 
+    @commands.command(brief='Print gitgud report card')
+    @cf_common.user_guard(group='gitgud')
+    async def howgud(self, ctx, member: discord.Member):
+        num = cf_common.user_db.howgud(member.id)[0][0]
+        await ctx.send(f'{member.display_name} completed {num} challenges.')
+
     @commands.command(brief='Skip challenge')
     @cf_common.user_guard(group='gitgud')
     async def nogud(self, ctx):
-        await cf_common.resolve_handles(ctx, self.converter, ('!' + str(ctx.author),))
         user_id = ctx.message.author.id
         active = cf_common.user_db.check_challenge(user_id)
         if not active:

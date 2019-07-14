@@ -194,6 +194,12 @@ class UserDbConn:
         '''
         return self.conn.execute(query).fetchall()
 
+    def howgud(self, user_id):
+        query = '''
+            SELECT num_completed FROM user_challenge WHERE user_id = ?
+        '''
+        return self.conn.execute(query, (user_id,)).fetchall()
+
     def complete_challenge(self, user_id, challenge_id, finish_time, delta):
         query1 = '''
             UPDATE challenge SET finish_time = ?, status = 0
